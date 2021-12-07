@@ -11,7 +11,7 @@ app.use(express.json())
 
 
 
-const serviceAccount = require('./doctors-portal-firebase-adminsdk.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -49,7 +49,6 @@ async function run() {
         app.get('/appointments', verifyToken, async (req, res) => {
             const email = req.query.email;
             const date = new Date(req.query.date).toLocaleDateString();
-            console.log(date)
             const query = { email: email, date: date }
             const cursor = appointmentsCollection.find(query);
             const appointments = await cursor.toArray();
@@ -59,7 +58,6 @@ async function run() {
         app.post('/appointments', async (req, res) => {
             const appointment = req.body;
             const result = await appointmentsCollection.insertOne(appointment);
-            console.log(result);
             res.json(result);
         })
 
@@ -72,13 +70,11 @@ async function run() {
                 isAdmin = true;
             }
             res.json({ admin: isAdmin });
-            console.log(isAdmin);
         })
 
         app.post('/users', async (req, res) => {
             const users = req.body;
             const result = await usersCollection.insertOne(users);
-            console.log(result);
             res.json(result);
         })
 
